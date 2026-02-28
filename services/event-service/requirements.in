@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+aio-pika
+tortoise-orm[asyncpg]
+asyncpg
+pydantic
+pydantic-settings
+python-dotenv
+PyJWT
+aerich[toml]

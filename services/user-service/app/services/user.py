@@ -29,10 +29,10 @@ class UserService:
         refresh_token_expires = timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
         
         access_token = create_access_token(
-            data={"email": user.email}, expires_delta=access_token_expires
+            data={"email": user.email, "role": user.role}, expires_delta=access_token_expires
         )
         refresh_token = create_refresh_token(
-            data={"email": user.email}, expires_delta=refresh_token_expires
+            data={"email": user.email, "role": user.role}, expires_delta=refresh_token_expires
         )
         
         return Token(access_token=access_token, refresh_token=refresh_token)
