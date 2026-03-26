@@ -4,6 +4,7 @@ from sqlalchemy import Select, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.activity_publisher import publish_activity_event
 from app.core.exceptions import AppException
 from app.models.event_booking import Booking
 from app.schemas.booking import BookingCreate, BookingStatusUpdate
@@ -32,6 +33,10 @@ class BookingService:
             ) from exc
 
         await self.db.refresh(booking)
+        await self._publish_activity(
+            user_id=booking.user_id,
+            message=f"Created booking for event {booking.event_id}, seat {booking.seat_number}.",
+        )
         return booking
 
     async def get_booking(self, booking_id: int) -> Booking:
@@ -65,10 +70,23 @@ class BookingService:
         booking.status = status_in.status
         await self.db.commit()
         await self.db.refresh(booking)
+        await self._publish_activity(
+            user_id=booking.user_id,
+            message=f"Booking {booking.id} status changed to {booking.status}.",
+        )
         return booking
 
     async def delete_booking(self, booking_id: int) -> dict:
         booking = await self.get_booking(booking_id)
+        user_id = booking.user_id
+        message = f"Deleted booking {booking.id} for event {booking.event_id}."
         await self.db.delete(booking)
         await self.db.commit()
+        await self._publish_activity(user_id=user_id, message=message)
         return {"detail": "Booking deleted successfully"}
+
+    async def _publish_activity(self, *, user_id: int, message: str) -> None:
+        try:
+            await publish_activity_event(user_id=user_id, message=message)
+        except Exception as exc:
+            print(f"Failed to publish activity event: {exc}")

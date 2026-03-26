@@ -1,5 +1,6 @@
 fastapi[standard]
 sqlalchemy
 asyncpg
+pydantic-settings
 PyJWT
 aio-pika

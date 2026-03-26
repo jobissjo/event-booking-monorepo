@@ -15,6 +15,10 @@ anyio==4.13.0
     #   httpx
     #   starlette
     #   watchfiles
+aio-pika==9.6.1
+    # via -r requirements.in
+aiormq==6.9.3
+    # via aio-pika
 asyncpg==0.30.0
     # via -r requirements.in
 certifi==2026.2.25

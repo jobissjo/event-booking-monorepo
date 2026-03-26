@@ -11,27 +11,58 @@ services:
     environment:
       - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/user_db
       - SECRET_KEY=supersecretkey123
-      - ALGORITHM=HS256 
+      - ALGORITHM=HS256
       - ACCESS_TOKEN_EXPIRE_MINUTES=30
       - REFRESH_TOKEN_EXPIRE_DAYS=7
     depends_on:
       postgres:
         condition: service_healthy
 
-  notification-service:
+  booking-service:
     build:
-      context: ./services/notification-service
-    container_name: notification-service
+      context: ./services/booking-service
+    container_name: booking-service
     ports:
-      - "8003:8003"
+      - "8002:8002"
     environment:
       - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/user_db
       - SECRET_KEY=supersecretkey123
       - ALGORITHM=HS256
-      - PORT=8003
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
     depends_on:
       postgres:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  activity-service:
+    build:
+      context: ./services/activity-service
+    container_name: activity-service
+    ports:
+      - "8004:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/user_db
+      - SECRET_KEY=supersecretkey123
+      - ALGORITHM=HS256
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   postgres:
     image: postgres:15-alpine
