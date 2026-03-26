@@ -1,0 +1,5 @@
+robyn[pydantic]
+sqlalchemy
+asyncpg
+pydantic-settings
+PyJWT

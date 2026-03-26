@@ -18,6 +18,21 @@ services:
       postgres:
         condition: service_healthy
 
+  notification-service:
+    build:
+      context: ./services/notification-service
+    container_name: notification-service
+    ports:
+      - "8003:8003"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/user_db
+      - SECRET_KEY=supersecretkey123
+      - ALGORITHM=HS256
+      - PORT=8003
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   postgres:
     image: postgres:15-alpine
     container_name: postgres_db
