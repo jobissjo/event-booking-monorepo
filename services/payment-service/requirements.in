@@ -1,0 +1,5 @@
+fastapi[standard]
+sqlalchemy
+asyncpg
+PyJWT
+aio-pika

@@ -6,18 +6,17 @@ from uuid import UUID
 from pydantic import BaseModel, field_validator
 
 
-AllowedBookingStatus = Literal["PENDING", "CONFIRMED", "CANCELLED"]
-AllowedPaymentStatus = Literal["PENDING", "SUCCEEDED", "FAILED", "INITIATION_FAILED"]
+AllowedPaymentStatus = Literal["PENDING", "SUCCEEDED", "FAILED"]
 
 
-class BookingCreate(BaseModel):
+class PaymentIntentCreate(BaseModel):
+    booking_id: int
     event_id: UUID
     user_id: int
-    seat_number: str
     amount: Decimal
     currency: str = "INR"
 
-    @field_validator("user_id")
+    @field_validator("booking_id", "user_id")
     @classmethod
     def ids_must_be_positive(cls, value: int) -> int:
         if value <= 0:
@@ -39,29 +38,20 @@ class BookingCreate(BaseModel):
             raise ValueError("currency must be a 3-letter ISO code")
         return normalized_value
 
-    @field_validator("seat_number")
-    @classmethod
-    def seat_number_must_not_be_blank(cls, value: str) -> str:
-        normalized_value = value.strip().upper()
-        if not normalized_value:
-            raise ValueError("seat_number must not be blank")
-        return normalized_value
+
+class PaymentStatusUpdate(BaseModel):
+    status: AllowedPaymentStatus
 
 
-class BookingStatusUpdate(BaseModel):
-    status: AllowedBookingStatus
-
-
-class BookingResponse(BaseModel):
-    id: int
+class PaymentResponse(BaseModel):
+    id: UUID
+    booking_id: int
     event_id: UUID
     user_id: int
-    seat_number: str
-    status: AllowedBookingStatus
     amount: Decimal
     currency: str
-    payment_id: UUID | None
-    payment_status: AllowedPaymentStatus
+    status: AllowedPaymentStatus
+    provider_reference: str
     created_at: datetime
     updated_at: datetime
 

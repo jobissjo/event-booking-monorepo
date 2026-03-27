@@ -13,7 +13,8 @@ const serviceTargets = {
   "/api/users": process.env.USER_SERVICE_URL || "http://user-service:8000",
   "/api/bookings-service": process.env.BOOKING_SERVICE_URL || "http://booking-service:8002",
   "/api/events-service": process.env.EVENT_SERVICE_URL || "http://event-service:8001",
-  "/api/activity-service": process.env.ACTIVITY_SERVICE_URL || "http://activity-service:8000"
+  "/api/activity-service": process.env.ACTIVITY_SERVICE_URL || "http://activity-service:8000",
+  "/api/payments-service": process.env.PAYMENT_SERVICE_URL || "http://payment-service:8003"
 };
 
 const publicRoutes = new Set([

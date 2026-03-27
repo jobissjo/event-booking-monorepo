@@ -1,4 +1,5 @@
 from typing import List, Optional
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -27,7 +28,7 @@ async def create_booking(
 
 @router.get("/bookings", response_model=List[BookingResponse])
 async def list_bookings(
-    event_id: Optional[int] = Query(default=None),
+    event_id: Optional[UUID] = Query(default=None),
     user_id: Optional[int] = Query(default=None),
     _payload=Depends(require_any_authenticated),
     service: BookingService = Depends(get_booking_service),

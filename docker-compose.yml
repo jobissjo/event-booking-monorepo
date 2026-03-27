@@ -15,6 +15,7 @@ services:
       - BOOKING_SERVICE_URL=http://booking-service:8002
       - EVENT_SERVICE_URL=http://event-service:8001
       - ACTIVITY_SERVICE_URL=http://activity-service:8000
+      - PAYMENT_SERVICE_URL=http://payment-service:8003
     depends_on:
       user-service:
         condition: service_started
@@ -23,6 +24,8 @@ services:
       event-service:
         condition: service_started
       activity-service:
+        condition: service_started
+      payment-service:
         condition: service_started
 
   user-service:
@@ -62,6 +65,26 @@ services:
     container_name: booking-service
     ports:
       - "8002:8002"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/user_db
+      - SECRET_KEY=supersecretkey123
+      - ALGORITHM=HS256
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+      - PAYMENT_SERVICE_URL=http://payment-service:8003
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      payment-service:
+        condition: service_started
+
+  payment-service:
+    build:
+      context: ./services/payment-service
+    container_name: payment-service
+    ports:
+      - "8003:8003"
     environment:
       - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/user_db
       - SECRET_KEY=supersecretkey123
