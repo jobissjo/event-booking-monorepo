@@ -19,6 +19,9 @@ aio-pika==9.6.1
     # via -r requirements.in
 aiormq==6.9.3
     # via aio-pika
+alembic==1.18.4
+    # via -r requirements.in
+    # via aio-pika
 asyncpg==0.30.0
     # via -r requirements.in
 certifi==2026.2.25

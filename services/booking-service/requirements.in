@@ -3,3 +3,4 @@ sqlalchemy
 asyncpg
 PyJWT
 aio-pika
+alembic
