@@ -40,7 +40,9 @@ app.get("/api/gateway/health", (_req, res) => {
 });
 
 function isPublicRoute(req) {
-  return publicRoutes.has(`${req.method.toUpperCase()} ${req.path}`);
+  const method = req.method.toUpperCase();
+  const path = req.path.replace(/\/+$/, "") || "/";
+  return publicRoutes.has(`${method} ${path}`);
 }
 
 function authenticateRequest(req, res, next) {
@@ -51,13 +53,13 @@ function authenticateRequest(req, res, next) {
 
   const authorization = req.headers.authorization;
   if (!authorization) {
-    res.status(401).json({ detail: "Missing Authorization header" });
+    res.status(401).json({ message: "Missing Authorization header" });
     return;
   }
 
   const [scheme, token] = authorization.split(" ");
   if (scheme !== "Bearer" || !token) {
-    res.status(401).json({ detail: "Authorization header must use Bearer token" });
+    res.status(401).json({ message: "Authorization header must use Bearer token" });
     return;
   }
 

@@ -23,4 +23,4 @@ COPY . .
 EXPOSE 8000
 
 # Command to run the application
-CMD ["uv", "run", "fastapi", "run", "app/main.py", "--port", "8000", "--host", "0.0.0.0"]
+CMD ["sh", "-c", "uv run alembic upgrade head && uv run fastapi run app/main.py --port 8000 --host 0.0.0.0"]

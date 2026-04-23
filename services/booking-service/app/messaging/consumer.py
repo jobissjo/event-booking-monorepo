@@ -1,4 +1,6 @@
+import asyncio
 import json
+import logging
 from uuid import UUID
 
 import aio_pika
@@ -23,7 +25,23 @@ class PaymentConsumer:
         self.channel: aio_pika.abc.AbstractRobustChannel | None = None
 
     async def start(self) -> None:
-        self.connection = await aio_pika.connect_robust(settings.RABBITMQ_URL)
+        retries = settings.RABBITMQ_CONNECT_RETRIES
+        delay = settings.RABBITMQ_CONNECT_DELAY_SECONDS
+        for attempt in range(1, retries + 1):
+            try:
+                self.connection = await aio_pika.connect_robust(settings.RABBITMQ_URL)
+                break
+            except Exception as exc:
+                logging.warning(
+                    "[BookingConsumer] RabbitMQ not ready (attempt %d/%d): %s",
+                    attempt,
+                    retries,
+                    exc,
+                )
+                if attempt == retries:
+                    raise
+                await asyncio.sleep(delay)
+
         self.channel = await self.connection.channel()
         await self.channel.set_qos(prefetch_count=20)
 

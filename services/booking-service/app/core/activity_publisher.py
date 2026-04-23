@@ -1,3 +1,4 @@
+import asyncio
 import json
 from datetime import datetime, timezone
 
@@ -13,7 +14,17 @@ async def publish_activity_event(
     message: str,
     source: str = "booking-service",
 ) -> None:
-    connection = await aio_pika.connect_robust(settings.RABBITMQ_URL)
+    connection = None
+    retries = settings.RABBITMQ_CONNECT_RETRIES
+    delay = settings.RABBITMQ_CONNECT_DELAY_SECONDS
+    for attempt in range(1, retries + 1):
+        try:
+            connection = await aio_pika.connect_robust(settings.RABBITMQ_URL)
+            break
+        except Exception:
+            if attempt == retries:
+                raise
+            await asyncio.sleep(delay)
     try:
         channel = await connection.channel()
         exchange = await channel.declare_exchange(
@@ -36,4 +47,5 @@ async def publish_activity_event(
             routing_key=settings.ACTIVITY_ROUTING_KEY,
         )
     finally:
-        await connection.close()
+        if connection is not None:
+            await connection.close()

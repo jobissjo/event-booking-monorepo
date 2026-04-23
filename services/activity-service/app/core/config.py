@@ -11,6 +11,11 @@ class Settings(BaseSettings):
         "amqp://guest:guest@rabbitmq:5672/",
         env="RABBITMQ_URL",
     )
+    RABBITMQ_CONNECT_RETRIES: int = Field(30, env="RABBITMQ_CONNECT_RETRIES")
+    RABBITMQ_CONNECT_DELAY_SECONDS: int = Field(
+        3,
+        env="RABBITMQ_CONNECT_DELAY_SECONDS",
+    )
     ACTIVITY_EXCHANGE: str = Field("activity.events", env="ACTIVITY_EXCHANGE")
     ACTIVITY_QUEUE: str = Field("activity-service", env="ACTIVITY_QUEUE")
     ACTIVITY_ROUTING_KEY: str = Field("activity.#", env="ACTIVITY_ROUTING_KEY")
